@@ -1,0 +1,15 @@
+data/
+password.txt
+ai-key.txt
+__pycache__/
+*.pyc
+*.zip
+
+.git/
+.env*
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+accounts.json
