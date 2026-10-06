@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101219">
+  <title>Auracut Studio</title>
+  <link rel="stylesheet" href="/static/app.css?v=13">
+</head>
+<body>
+  <header class="top"><div class="brand"><span class="mark">A<span>✦</span></span><span>Auracut <small>V1 MULTIUSER</small></span></div><span class="topnote">Music cuts and speech editing</span></header>
+  <main class="workspace">
+    <section class="sidebar" aria-label="Project inputs">
+      <section class="project-library" aria-label="Saved projects"><div class="project-library-head"><h2>Saved projects</h2><div><button id="new-project" type="button" class="quiet">New</button><button id="refresh-projects" type="button" class="quiet">Refresh</button></div></div><button id="restore" type="button" class="quiet">Restore project ZIP…</button><input id="restore-file" type="file" accept=".zip,application/zip" hidden><p class="hint">Restore adds a separate project with its music and clips. ZIP backups are not encrypted.</p><div id="project-list" class="project-list"><p class="hint">Loading saved projects…</p></div></section>
+      <p id="account-identity" class="hint"></p>
+      <details id="account-admin" class="footage-library" hidden>
+        <summary>Manage user accounts</summary>
+        <p class="hint">Accounts have private projects and footage. Paid AI uses your NAS API key only when enabled for that account.</p>
+        <label class="field-label" for="account-operation">Action</label><select id="account-operation"><option value="create">Create account</option><option value="reset-password">Reset password</option></select>
+        <label class="field-label" for="account-username">Username</label><input id="account-username" type="text" maxlength="40" autocomplete="off" placeholder="e.g. editor1">
+        <label class="field-label" for="account-password">Password (at least 16 characters)</label><input id="account-password" type="password" maxlength="256" autocomplete="new-password">
+        <label><input id="account-ai" type="checkbox"> Allow paid AI for new account</label>
+        <button id="account-submit" type="button" class="quiet">Save account</button>
+        <p id="account-status" class="hint" role="status"></p><div id="account-list"></div>
+        <p class="hint">The administrator is auracut. Its password remains in the existing password file. Use a separate browser profile or private window to sign in as another account.</p>
+      </details>
+      <div class="section-title"><span class="index">01</span><h1>Your material</h1></div>
+      <label class="field-label project-name-label" for="project-name">Project name</label>
+      <input id="project-name" class="project-name-input" type="text" maxlength="120" placeholder="Optional — defaults to the song name">
+      <p class="hint">Rename the current project here, then save the timeline.</p>
+      <label class="upload"><strong>Song</strong><span>MP3, WAV or M4A</span><input id="song" type="file" accept="audio/*,.m4a"></label>
+      <div id="song-status" class="file-status">No song selected</div>
+      <label class="upload"><strong>Footage</strong><span>Choose multiple video clips</span><input id="clips" type="file" multiple accept="video/*,.mov,.m4v"></label>
+      <ul id="clip-list" class="clip-list"><li>No clips selected</li></ul>
+      <label class="field-label" for="lyrics">Lyrics or story notes <span>optional</span></label>
+      <textarea id="lyrics" rows="5" placeholder="0:00 Night traffic&#10;0:11 A walk through the forest&#10;0:20 Beach and waves"></textarea>
+      <p class="hint">For timed scenes, enter one time and description per line, starting at 0:00. Plain lyrics still work as approximate guidance.</p>
+      <label class="timing-option"><input id="snap-story" type="checkbox" checked> Align scene changes to nearby beats or audio peaks</label>
+      <p class="hint">May move each scene time by up to 1.5 seconds. Uncheck to use your exact times.</p>
+      <label class="timing-option"><input id="dynamic-pacing" type="checkbox"> Dynamic pacing</label>
+      <label class="timing-option"><input id="musical-changes" type="checkbox"> Prefer musical changes</label>
+      <p class="hint">For new or rebuilt cuts: favour estimated tonal changes near the rhythm, holding through ordinary beats when footage allows. These cues do not identify exact chords or confirmed phrase starts.</p>
+      <p class="hint">For new or rebuilt cuts: longer shots in calmer passages, shorter shots in energetic passages, with stronger nearby rhythmic accents preferred. Footage lengths and story times can limit the variation.</p>
+      <div id="story-panel" class="story-panel" hidden><strong>Planned story times</strong><p id="story-markers"></p><button id="apply-story" type="button" class="quiet">Update AI suggestions</button><p class="hint">Manual trims can move these transitions. Edit the notes, alignment or pacing setting above, then update to rebuild using saved clip descriptions and one paid AI selection request.</p></div>
+      <div class="length"><label for="duration">Target length</label><select id="duration"><option value="30">30 seconds</option><option value="45">45 seconds</option><option value="60">60 seconds</option><option value="120">Up to 120 seconds</option></select></div>
+      <label class="ai-option"><input id="use-ai" type="checkbox" disabled> Use AI to select clips by what appears in them</label>
+      <p id="ai-notice" class="hint">Checking whether optional AI is configured…</p>
+      <button id="create" class="primary">Create first cut <span>↗</span></button>
+      <p class="hint">Shots follow strong audio changes where possible. Add descriptive filenames for simple lyric matching.</p>
+    </section>
+    <section class="editor" aria-label="Video editor">
+      <div class="editor-head"><div><span class="eyebrow">PROJECT / FIRST CUT</span><h2 id="project-title">Your timeline starts here</h2><p id="project-song" class="project-song"></p><span id="project-save-state" class="project-save-state"></span></div><div class="project-head-actions"><button id="backup" class="quiet" type="button" disabled>Download backup ZIP</button><button id="duplicate" class="quiet" type="button" disabled>Duplicate project</button><label>Export <select id="export-resolution" aria-label="Export resolution"><option value="720p">720p</option><option value="1080p">1080p</option><option value="4k">4K</option></select></label><button id="export" class="outline" disabled>Export MP4 ↓</button></div></div>
+      <div class="screen"><video id="preview" controls playsinline muted></video><div id="empty-preview" class="empty-preview"><div class="play-glyph">▶</div><p>Add a song and footage to create your first cut</p></div></div>
+      <audio id="preview-song" preload="metadata"></audio>
+      <div class="cut-controls"><button id="play-cut" type="button" disabled>▶ Play full cut</button><input id="seek-cut" type="range" min="0" max="0" step="0.05" value="0" aria-label="Seek full cut" disabled><span id="cut-clock">00:00 / 00:00</span></div>
+      <div class="playback"><span id="now-playing">Click a shot below to preview its source footage (without the song)</span><span id="total-time">00:00</span></div>
+      <p class="preview-note">Full cut preview plays in your browser and may briefly lag when changing clips. The exported MP4 is the final timing reference. 4K exports take longer; lower-resolution footage is upscaled. Rendered previews stay at 720p.</p>
+      <details class="footage-library">
+        <summary>Search footage · preview and use saved clips</summary>
+        <p class="hint">Search filenames or indexed visual descriptions. Descriptions come from two frames in each of up to 12 sections across a clip; brief moments may be missed. Preview before choosing a shot.</p>
+        <div class="footage-upload"><input id="library-files" type="file" multiple accept="video/*,.mov,.m4v" aria-label="Upload footage to library"><button id="upload-footage" class="quiet" type="button">Upload footage</button><button id="refresh-footage" class="quiet" type="button">Refresh</button></div>
+        <div class="footage-browser"><div><div id="footage-list" class="footage-list">Loading saved footage…</div><button id="index-footage" class="quiet" type="button" disabled>Index selected (AI)</button><button id="clear-footage" class="quiet" type="button">Clear selection</button><p id="index-notice" class="hint">Checking AI availability…</p></div><div><div class="footage-search"><input id="footage-query" type="search" maxlength="200" placeholder="Keywords, e.g. audience applause" aria-label="Search footage keywords"><button id="search-footage" class="quiet" type="button">Search</button></div><p id="footage-search-status" class="preview-note" role="status"></p><div id="footage-results" class="footage-results"></div></div></div>
+        <div class="section-cut-controls"><button id="create-section-cut" type="button" class="primary" disabled>Create cut from indexed sections (AI) <span>↗</span></button><p id="section-cut-notice" class="hint">Select 1–20 indexed library clips. Uses the chosen song file, or the open project's song, plus the story notes and target length on the left. One paid text-only request chooses sections; it creates a new saved project.</p></div>
+      </details>
+      <details id="studio-panel" class="footage-library">
+        <summary>AI editing studio · transcript, captions, plan and Director Review</summary>
+        <p class="hint">Speech edits keep the source audio and create separate projects. Transcription sends the first 120 seconds of one selected speech clip to OpenAI. Smart cuts and editing plans send text. Director Review sends up to 12 sampled rendered frames and measurements, not continuous audio/video. Each AI button makes a paid request; cached transcripts are reused.</p>
+        <div class="footage-actions"><button id="speech-start" type="button" class="quiet">Transcribe selected footage</button><button id="edit-plan" type="button" class="quiet">Review AI editing plan</button><button id="accept-plan" type="button" class="quiet">Accept plan</button></div>
+        <p id="studio-status" class="hint" role="status"></p>
+        <div id="plan-report" class="studio-report"></div>
+        <div id="transcript-panel" hidden><h3>Transcript editor</h3><p class="hint">Checked words are kept. Reviewed selections are preserved during plan review. Uncheck text to remove it from the video. AI suggestions only change these checkboxes; review them before applying. Applying creates a separate cut from the original speech clip. Transcript timestamps are estimates.</p><div class="footage-actions"><button id="smart-cuts" type="button" class="quiet">Suggest smart cuts (AI)</button><button id="keep-words" type="button" class="quiet">Keep all words</button><label><input id="remove-pauses" type="checkbox" checked> Shorten pauses over 0.45 seconds</label><button id="apply-transcript" type="button" class="quiet">Apply reviewed transcript edit</button></div><div id="transcript-words" class="transcript-words"></div></div>
+        <div class="footage-actions"><button id="generate-captions" type="button" class="quiet">Generate captions</button><button id="clear-captions" type="button" class="quiet">Clear captions</button><button id="download-srt" type="button" class="quiet">Download SRT</button><button id="render-preview" type="button" class="quiet">Render preview with audio and captions</button><button id="director-review" type="button" class="quiet">AI Director Review</button><button id="apply-director" type="button" class="quiet">Apply Director changes to a copy</button></div>
+        <p class="hint">Captions are burned into preview/export with a bottom safe margin. Edit caption text below and save. Changing trims or shot order clears captions on save; generate them again. Director Review checks sampled visuals, caption timing, pacing and measured audio levels; listen yourself to check dialogue and music balance.</p>
+        <div class="footage-actions"><label>Caption language <select id="caption-language"><option value="original">Original</option><option value="zh-hans">Simplified Chinese</option><option value="zh-hant">Traditional Chinese</option><option value="en">English</option></select></label><button id="convert-captions" type="button" class="quiet">Apply caption language</button></div><p id="caption-language-status" class="hint" role="status" aria-live="polite"></p><p class="hint">Conversion sends caption text to AI in batches of up to 20 captions (one paid request per batch). Timing stays unchanged. Original restores the saved source captions without an AI request. Review translated text before export.</p><div id="speech-volume-control" hidden><label><input id="normalize-speech" type="checkbox"> Normalize speech volume</label><p class="hint">Balances speech loudness and limits peaks in rendered previews and exports. May also make background noise louder. Does not change transcription or caption text.</p></div><div id="caption-editor" class="caption-editor"></div><div id="director-report" class="studio-report"></div><video id="studio-preview" class="studio-preview" controls playsinline hidden></video>
+      </details>
+      <div class="timeline-head"><h3>Shot sequence</h3><span id="shot-count">0 shots</span></div>
+      <div class="timing-toolbar"><label class="timing-option"><input id="keep-total" type="checkbox" checked> Keep total length when changing a shot length</label><button id="analyze-beats" type="button" class="quiet" disabled>Analyze beats</button><button id="undo-timing" type="button" class="quiet" disabled>Undo timing edit</button></div>
+      <p id="timing-notice" class="preview-note">Snap end suggests nearby beats when a steady rhythm is detected, with audio peaks as a fallback. Listen and choose the timing that feels right.</p>
+      <div id="timeline" class="timeline"><div class="empty-timeline">Your suggested edit will appear here. You can reorder, trim, remove, and inspect every shot before export.</div></div>
+      <div class="editor-foot"><span id="status" role="status" aria-live="polite">Ready for footage</span><button id="save" class="quiet" disabled>Save timeline</button></div>
+    </section>
+  </main>
+  <script src="/static/timing.js?v=7"></script>
+  <script src="/static/app.js?v=32"></script>
+</body>
+</html>
