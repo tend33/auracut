@@ -21,3 +21,5 @@ accounts.json
 *.m4a
 *.m4v
 .DS_Store
+
+node_modules/

@@ -1261,7 +1261,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(403, {"error":"Administrator access required"})
             return self.reply(200, {"accounts":account_store.list()})
         if path == "/api/capabilities":
-            return self.reply(200, {"version": "1.1.1", "user": identity(), "ai_available": bool(identity().get("ai_allowed") and AI_KEY_FILE and Path(AI_KEY_FILE).is_file()), "ai_model": AI_MODEL})
+            return self.reply(200, {"version": "1.2.0", "user": identity(), "ai_available": bool(identity().get("ai_allowed") and AI_KEY_FILE and Path(AI_KEY_FILE).is_file()), "ai_model": AI_MODEL})
         backup_match = re.fullmatch(r"/api/projects/([a-f0-9]{32})/backup", path)
         if backup_match:
             if not work_lock.acquire(blocking=False):
@@ -1280,11 +1280,11 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(200, {"results": search_footage(query)})
         if path == "/api/projects":
             return self.reply(200, {"projects": list_projects()})
-        if path in ("/", "/static/app.css", "/static/app.js", "/static/timing.js"):
-            filename = {"/": "index.html", "/static/app.css": "app.css", "/static/app.js": "app.js", "/static/timing.js": "timing.js"}[path]
+        if path in ("/", "/static/app.css", "/static/app.js", "/static/timing.js", "/static/ui.js", "/static/ui-catalog.js"):
+            filename = {"/": "index.html", "/static/app.css": "app.css", "/static/app.js": "app.js", "/static/timing.js": "timing.js", "/static/ui.js": "ui.js", "/static/ui-catalog.js": "ui-catalog.js"}[path]
             content = (ROOT / "static" / filename).read_bytes()
             self.send_response(200)
-            self.send_header("Content-Type", {"index.html": "text/html", "app.css": "text/css", "app.js": "text/javascript", "timing.js": "text/javascript"}[filename] + "; charset=utf-8")
+            self.send_header("Content-Type", {"index.html": "text/html", "app.css": "text/css", "app.js": "text/javascript", "timing.js": "text/javascript", "ui.js": "text/javascript", "ui-catalog.js": "text/javascript"}[filename] + "; charset=utf-8")
         elif re.fullmatch(r"/media/[a-f0-9]{32}", path):
             content_path, meta = media_info(path.rsplit("/", 1)[1])
             mime = {".mp3": "audio/mpeg", ".wav": "audio/wav", ".m4a": "audio/mp4", ".mp4": "video/mp4",

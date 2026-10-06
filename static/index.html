@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101219">
   <title>Auracut Studio</title>
-  <link rel="stylesheet" href="/static/app.css?v=13">
+  <link rel="stylesheet" href="/static/app.css?v=14">
 </head>
 <body>
-  <header class="top"><div class="brand"><span class="mark">A<span>✦</span></span><span>Auracut <small>V1 MULTIUSER</small></span></div><span class="topnote">Music cuts and speech editing</span></header>
+  <header class="top"><div class="brand"><span class="mark">A<span>✦</span></span><span>Auracut <small>V1 MULTIUSER</small></span></div><div class="top-tools"><span class="topnote">Music cuts and speech editing</span><label>Interface <select id="ui-layout"><option value="clean">Clean</option><option value="classic">Classic</option></select></label><label>Language <select id="ui-language" translate="no"><option value="en">English</option><option value="zh-hans">简体中文</option><option value="zh-hant">繁體中文</option></select></label></div></header>
   <main class="workspace">
     <section class="sidebar" aria-label="Project inputs">
       <section class="project-library" aria-label="Saved projects"><div class="project-library-head"><h2>Saved projects</h2><div><button id="new-project" type="button" class="quiet">New</button><button id="refresh-projects" type="button" class="quiet">Refresh</button></div></div><button id="restore" type="button" class="quiet">Restore project ZIP…</button><input id="restore-file" type="file" accept=".zip,application/zip" hidden><p class="hint">Restore adds a separate project with its music and clips. ZIP backups are not encrypted.</p><div id="project-list" class="project-list"><p class="hint">Loading saved projects…</p></div></section>
@@ -35,7 +35,7 @@
       <label class="field-label" for="lyrics">Lyrics or story notes <span>optional</span></label>
       <textarea id="lyrics" rows="5" placeholder="0:00 Night traffic&#10;0:11 A walk through the forest&#10;0:20 Beach and waves"></textarea>
       <p class="hint">For timed scenes, enter one time and description per line, starting at 0:00. Plain lyrics still work as approximate guidance.</p>
-      <label class="timing-option"><input id="snap-story" type="checkbox" checked> Align scene changes to nearby beats or audio peaks</label>
+      <details class="music-options"><summary>Music timing &amp; AI options</summary><label class="timing-option"><input id="snap-story" type="checkbox" checked> Align scene changes to nearby beats or audio peaks</label>
       <p class="hint">May move each scene time by up to 1.5 seconds. Uncheck to use your exact times.</p>
       <label class="timing-option"><input id="dynamic-pacing" type="checkbox"> Dynamic pacing</label>
       <label class="timing-option"><input id="musical-changes" type="checkbox"> Prefer musical changes</label>
@@ -45,17 +45,17 @@
       <div class="length"><label for="duration">Target length</label><select id="duration"><option value="30">30 seconds</option><option value="45">45 seconds</option><option value="60">60 seconds</option><option value="120">Up to 120 seconds</option></select></div>
       <label class="ai-option"><input id="use-ai" type="checkbox" disabled> Use AI to select clips by what appears in them</label>
       <p id="ai-notice" class="hint">Checking whether optional AI is configured…</p>
-      <button id="create" class="primary">Create first cut <span>↗</span></button>
+      </details><button id="create" class="primary">Create first cut <span>↗</span></button>
       <p class="hint">Shots follow strong audio changes where possible. Add descriptive filenames for simple lyric matching.</p>
     </section>
     <section class="editor" aria-label="Video editor">
-      <div class="editor-head"><div><span class="eyebrow">PROJECT / FIRST CUT</span><h2 id="project-title">Your timeline starts here</h2><p id="project-song" class="project-song"></p><span id="project-save-state" class="project-save-state"></span></div><div class="project-head-actions"><button id="backup" class="quiet" type="button" disabled>Download backup ZIP</button><button id="duplicate" class="quiet" type="button" disabled>Duplicate project</button><label>Export <select id="export-resolution" aria-label="Export resolution"><option value="720p">720p</option><option value="1080p">1080p</option><option value="4k">4K</option></select></label><button id="export" class="outline" disabled>Export MP4 ↓</button></div></div>
-      <div class="screen"><video id="preview" controls playsinline muted></video><div id="empty-preview" class="empty-preview"><div class="play-glyph">▶</div><p>Add a song and footage to create your first cut</p></div></div>
+      <div class="editor-head"><div><span class="eyebrow">PROJECT / FIRST CUT</span><h2 id="project-title" data-user-content="false">Your timeline starts here</h2><p id="project-song" class="project-song"></p><span id="project-save-state" class="project-save-state"></span></div><div class="project-head-actions"><button id="backup" class="quiet" type="button" disabled>Download backup ZIP</button><button id="duplicate" class="quiet" type="button" disabled>Duplicate project</button><label>Export <select id="export-resolution" aria-label="Export resolution"><option value="720p">720p</option><option value="1080p">1080p</option><option value="4k">4K</option></select></label><button id="export" class="outline" disabled>Export MP4 ↓</button></div></div>
+      <nav class="editor-tabs" aria-label="Editing tools"><button type="button" data-panel="edit" aria-pressed="true">Edit</button><button type="button" data-panel="media" aria-pressed="false">Media library</button><button type="button" data-panel="speech" aria-pressed="false">Speech &amp; captions</button></nav><div class="screen"><video id="preview" controls playsinline muted></video><div id="empty-preview" class="empty-preview"><div class="play-glyph">▶</div><p>Add a song and footage to create your first cut</p></div></div>
       <audio id="preview-song" preload="metadata"></audio>
       <div class="cut-controls"><button id="play-cut" type="button" disabled>▶ Play full cut</button><input id="seek-cut" type="range" min="0" max="0" step="0.05" value="0" aria-label="Seek full cut" disabled><span id="cut-clock">00:00 / 00:00</span></div>
       <div class="playback"><span id="now-playing">Click a shot below to preview its source footage (without the song)</span><span id="total-time">00:00</span></div>
       <p class="preview-note">Full cut preview plays in your browser and may briefly lag when changing clips. The exported MP4 is the final timing reference. 4K exports take longer; lower-resolution footage is upscaled. Rendered previews stay at 720p.</p>
-      <details class="footage-library">
+      <details id="media-panel" class="footage-library">
         <summary>Search footage · preview and use saved clips</summary>
         <p class="hint">Search filenames or indexed visual descriptions. Descriptions come from two frames in each of up to 12 sections across a clip; brief moments may be missed. Preview before choosing a shot.</p>
         <div class="footage-upload"><input id="library-files" type="file" multiple accept="video/*,.mov,.m4v" aria-label="Upload footage to library"><button id="upload-footage" class="quiet" type="button">Upload footage</button><button id="refresh-footage" class="quiet" type="button">Refresh</button></div>
@@ -80,7 +80,9 @@
       <div class="editor-foot"><span id="status" role="status" aria-live="polite">Ready for footage</span><button id="save" class="quiet" disabled>Save timeline</button></div>
     </section>
   </main>
+  <script src="/static/ui-catalog.js?v=1"></script>
+  <script src="/static/ui.js?v=1"></script>
   <script src="/static/timing.js?v=7"></script>
-  <script src="/static/app.js?v=32"></script>
+  <script src="/static/app.js?v=33"></script>
 </body>
 </html>

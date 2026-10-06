@@ -1,6 +1,10 @@
-# Auracut V1 multiuser — 1.1.1
+# Auracut V1 multiuser — 1.2.0
 
 Self-hosted editor with administrator-created private accounts for music cuts and short speech videos. Designed for the existing NAS, private reverse proxy and WireGuard deployment.
+
+## Interface update
+
+Clean workspace with focused editing tabs and bundled English, Simplified Chinese and Traditional Chinese labels/help. Classic remains selectable using the same editor controls. Layout/language switching preserves in-progress edits, input values, reviewed word selections and media elements. Browser preferences are isolated by account. Caption translation and AI-generated content remain separate from interface translation.
 
 ## Included workflows
 

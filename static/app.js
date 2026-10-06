@@ -89,7 +89,7 @@ $('new-project').addEventListener('click', async () => {
   project = null; undoTiming = null; activeShot = -1; projectDirty = false;
   $('project-name').value = ''; $('lyrics').value = ''; $('song').value = ''; $('clips').value = '';
   $('song-status').textContent = 'No song selected'; updateList();
-  $('project-title').textContent = 'Your timeline starts here'; $('project-song').textContent = ''; $('project-save-state').textContent = '';
+  $('project-title').dataset.userContent = 'false'; $('project-title').textContent = 'Your timeline starts here'; $('project-song').textContent = ''; $('project-save-state').textContent = '';
   $('story-panel').hidden = true; $('timeline').replaceChildren(); $('shot-count').textContent = '0 shots'; $('total-time').textContent = '00:00';
   $('play-cut').disabled = true; $('seek-cut').disabled = true; $('seek-cut').max = 0; updateCutClock(0);
   $('snap-story').checked = true; $('dynamic-pacing').checked = false; $('musical-changes').checked = false; drawStudio(); $('studio-preview').pause(); $('studio-preview').hidden=true; setBusy(false);
@@ -205,6 +205,7 @@ function updateList() {
 $('clips').addEventListener('change', updateList);
 $('song').addEventListener('change', () => { $('song-status').textContent = $('song').files[0]?.name || 'No song selected'; });
 api('/api/capabilities').then(config => {
+  window.AuracutUI?.setAccount(config.user?.id || 'admin');
   $('account-identity').textContent = `Signed in as ${config.user?.username || 'auracut'} · private workspace`;
   $('account-admin').hidden = config.user?.role !== 'admin';
   if (config.user?.role === 'admin') refreshAccounts();
@@ -318,7 +319,7 @@ function draw() {
   $('story-panel').hidden = !editableStory;
   $('story-markers').textContent = (project.story_beats || []).map(beat => `${timing.formatTime(beat.at)} ${beat.note}${beat.requested_at !== undefined && beat.at !== beat.requested_at ? ` (from ${timing.formatTime(beat.requested_at)})` : ''}`).join(' · ') || 'Add timed notes above to guide each scene.';
   if (activeShot < 0) $('empty-preview').querySelector('p').textContent = 'Click a shot below to preview its source footage';
-  $('project-title').textContent = project.name || project.song_name;
+  $('project-title').dataset.userContent = 'true'; $('project-title').textContent = project.name || project.song_name;
   $('project-song').textContent = project.song_name;
   $('project-save-state').textContent = projectDirty ? 'Unsaved changes' : 'Saved on NAS';
   $('save').disabled = projectBusy; $('export').disabled = projectBusy; $('duplicate').disabled = projectBusy;

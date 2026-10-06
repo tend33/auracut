@@ -2,6 +2,10 @@
 
 A self-hosted music and speech video editor for private LAN/VPN deployment. Create a suggested music cut, edit speech through a transcript, review captions and AI suggestions, and export MP4. Runs in Docker on a NAS or Linux machine.
 
+## Interface
+
+Use the header selectors to switch **Clean / Classic** and **English / 简体中文 / 繁體中文**. Clean groups editing tools into Edit, Media library, and Speech & captions tabs. Classic retains the original layout and controls. Switching does not reload the editor or change project data. Language and layout preferences are stored in this browser separately for each signed-in account; they do not sync between devices. Interface language is independent of caption language. No AI request is made for interface translation. User-written content and AI-generated descriptions/reports remain in their original language; unrecognized server/service errors may remain in English.
+
 ## V1 features
 
 - Standard or optional AI-assisted music cuts, beat/musical-change analysis and editable shot boundaries.
@@ -78,3 +82,5 @@ node tests/test_transcript_ui.js
 ## License
 
 MIT. External tools, fonts and dependencies retain their own licenses.
+
+Optional interface regression checks (development only): install `jsdom` in your test environment and run `node tests/test_interface.js`. No Node dependency is needed on the NAS.

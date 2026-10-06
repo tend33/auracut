@@ -30,7 +30,14 @@ def request(path,data=None,auth=True,marker=True,cross=False):
   body=error.read();return error.code,json.loads(body) if body else {}
 try:
  assert request('/api/projects',auth=False)[0]==401
- assert request('/api/capabilities')[1]['version']=='1.1.1'
+ assert request('/api/capabilities')[1]['version']=='1.2.0'
+ for asset in ('ui.js','ui-catalog.js'):
+  headers={'Authorization':'Basic '+base64.b64encode(('auracut:'+s.PASSWORD).encode()).decode()}
+  with urlopen(Request(base+'/static/'+asset,headers=headers)) as response:
+   assert response.status==200 and 'text/javascript' in response.headers['Content-Type']
+   assert "script-src 'self'" in response.headers['Content-Security-Policy']
+   assert response.read()
+  assert request('/static/'+asset,auth=False)[0]==401
  assert request('/api/projects/'+project_id+'/save',p,marker=False)[0]==400
  assert request('/api/projects/'+project_id+'/save',p,cross=True)[0]==400
  assert request('/api/studio',{'operation':'plan','project_id':'../outside'})[0]==400
